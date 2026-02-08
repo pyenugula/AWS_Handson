@@ -1,0 +1,64 @@
+For this task, create an EC2 instance with following requirements:
+
+1) The name of the instance must be devops-ec2.
+2) You can use the Amazon Linux AMI to launch this instance.
+3) The Instance type must be t2.micro.
+4) Create a new RSA key pair named devops-kp.
+5) Attach the default (available by default) security group.
+Using the AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+3. Launch a New EC2 Instance:
+In the EC2 dashboard, click on Launch Instance.
+4. Configure the Instance:
+1. Choose an Amazon Machine Image (AMI):
+  Select Amazon Linux 2 AMI (it is the default Amazon Linux AMI).
+2. Choose an Instance Type:
+  Select t2.micro (eligible for the free tier if your account qualifies).
+3. Configure Instance Details:
+  Keep the default settings, or configure as per your needs.
+  Ensure Auto-assign Public IP is set to Enable if you want your instance to be accessible from the internet.
+4. Add Storage:
+  The default 8 GiB size should be sufficient, but adjust as needed.
+5. Add Tags:
+   Click Add Tag.
+   Set the Key to Name and the Value to devops-ec2 to name your instance.
+6. Configure Security Group:
+  Choose the default security group (it is available by default).
+7. Select Key Pair:
+  Create a new key pair.
+  Name the key pair devops-kp.
+  Download the .pem file, which you will use to connect to your instance.
+  Acknowledge that you have downloaded the key pair and proceed.
+8.  Review and Launch:
+  Review your settings and click Launch.
+5. Instance Initialization:
+Wait for your EC2 instance to be in the running state. You can see the status in the EC2 dashboard.
+
+Using the AWS CLI:
+1. Create a New RSA Key Pair:
+First, create the RSA key pair named devops-kp. Run the following command:
+
+aws ec2 create-key-pair --key-name devops-kp --query "KeyMaterial" --output text > devops-kp.pem
+
+This command will create the key pair devops-kp and save the private key (devops-kp.pem) to your local machine. Make sure to keep it safe.
+
+2. Launch the EC2 Instance:
+Now, launch the EC2 instance with the specified requirements using the following command:
+aws ec2 run-instances \
+  --image-id ami-xxxxxxxxxxxxxxxxx \  # Replace with the correct AMI ID for Amazon Linux 2
+  --instance-type t2.micro \
+  --key-name devops-kp \
+  --security-group-ids sg-xxxxxxxx \  # The security group ID for the default security group (it’s often automatically used)
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=devops-ec2}]' \
+  --count 1 \
+  --associate-public-ip-address
+
+3. Verify the Instance:
+To check if your instance was launched successfully, use the following command:
+aws ec2 describe-instances --filters "Name=tag:Name,Values=devops-ec2"
+
+
