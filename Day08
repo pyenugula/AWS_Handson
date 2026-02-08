@@ -1,0 +1,31 @@
+As part of the migration, there were some components added to the AWS account. Team created one of the EC2 instances where they need to make some changes now.
+
+There is an EC2 instance named devops-ec2 under us-east-1 region, enable the stop protection for this instance.
+
+Steps Using AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+3. Locate the Instance:
+In the EC2 dashboard, select Instances from the left-hand side.
+In the us-east-1 region, find the devops-ec2 instance in the list of EC2 instances.
+4. Enable Stop Protection:
+Select the devops-ec2 instance by clicking the checkbox next to the instance.
+From the Actions dropdown, choose Instance Settings > Change Termination Protection.
+In the Change Termination Protection window, select Enable to enable the stop protection for the instance.
+Click Apply.
+5. Confirm Protection:
+After enabling stop protection, you will see a Termination Protection label in the Description tab of the instance with the value set to Enabled.
+
+Steps Using AWS CLI:
+1. Enable Stop Protection for the Instance:
+To enable stop protection for the EC2 instance devops-ec2, run the following AWS CLI command:
+aws ec2 modify-instance-attribute --instance-id i-xxxxxxxxxxxxxxxxx --no-disable-api-termination --region us-east-1
+
+2. Verify Termination Protection:
+After enabling stop protection, you can verify the status with the following command:
+
+aws ec2 describe-instances --instance-ids i-xxxxxxxxxxxxxxxxx --query 'Reservations[0].Instances[0].DisableApiTermination'
+
