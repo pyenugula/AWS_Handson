@@ -1,0 +1,32 @@
+For this task, create a security group under default VPC with the following requirements:
+Name of the security group is datacenter-sg.
+The description must be Security group for Nautilus App Servers
+Add the inbound rule of type HTTP, with port range of 80. Enter the source CIDR range of 0.0.0.0/0.
+Add another inbound rule of type SSH, with port range of 22. Enter the source CIDR range of 0.0.0.0/0.
+
+AWS Console Steps:
+Go to EC2 > Security Groups > Create security group.
+Name: datacenter-sg, Description: Security group for Nautilus App Servers, VPC: Default VPC.
+Add inbound rules for HTTP (port 80, source 0.0.0.0/0) and SSH (port 22, source 0.0.0.0/0).
+Click Create security group.
+
+AWS CLI Steps:
+
+1. Create the security group using:
+aws ec2 create-security-group --group-name datacenter-sg --description "Security group for Nautilus App Servers" --vpc-id $(aws ec2 describe-vpcs --query "Vpcs[?IsDefault==\`true\`].VpcId" --output text)
+
+2. Add inbound rule for HTTP:
+aws ec2 authorize-security-group-ingress --group-name datacenter-sg --protocol tcp --port 80 --cidr 0.0.0.0/0
+
+3. Add inbound rule for SSH:
+aws ec2 authorize-security-group-ingress --group-name datacenter-sg --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+4. Verify the Security Group:
+To verify that the security group was created and the rules have been applied, run:
+
+aws ec2 describe-security-groups --group-names datacenter-sg
+
+aws ec2 describe-security-groups --group-names datacenter-sg | jq -r '.SecurityGroups[0].GroupName'
+
+datacenter-sg
+
