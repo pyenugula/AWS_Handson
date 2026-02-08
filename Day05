@@ -1,0 +1,43 @@
+The Nautilus DevOps team is strategizing the migration of a portion of their infrastructure to the AWS cloud. 
+Recognizing the scale of this undertaking, they have opted to approach the migration in incremental steps rather than as a single massive transition. 
+To achieve this, they have segmented large tasks into smaller, more manageable units. 
+This granular approach enables the team to execute the migration in gradual phases, ensuring smoother implementation and minimizing disruption to ongoing operations. 
+By breaking down the migration into smaller tasks, the Nautilus DevOps team can systematically progress through each stage, allowing for better control, risk mitigation, and optimization of resources throughout the migration process.
+
+Create a volume with the following requirements:
+Name of the volume should be datacenter-volume.
+Volume type must be gp3.
+Volume size must be 2 GiB.
+
+Using the AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+3. Access Volumes Section:
+In the left sidebar, under Elastic Block Store, click on Volumes.
+4. Create a New Volume:
+Click the Create volume button.
+5. Configure Volume Settings:
+Volume type: Select gp3 (General Purpose SSD).
+Size: Enter 2 for the size (which is in GiB).
+Availability Zone: Select the appropriate Availability Zone. You must select a zone that is associated with your EC2 instance if you're attaching it later.
+6. Add Volume Name:
+Under Tags, click Add tag.
+Set Key to Name and Value to datacenter-volume.
+7. Create the Volume:
+Once all settings are configured, click Create volume to create the EBS volume.
+
+Using the AWS CLI:
+1. Create the Volume:
+To create an EBS volume with the name datacenter-volume, type gp3 for the volume type, and a size of 2 GiB, run the following command:
+
+aws ec2 create-volume --size 2 --volume-type gp3 --tag "Key=Name,Value=datacenter-volume" --availability-zone us-east-1a
+
+2. Verify Volume Creation:
+Once the volume is created, you can verify the volume by listing all volumes or specifically looking for the newly created one:
+
+aws ec2 describe-volumes --filters Name=tag:Name,Values=datacenter-volume
+
+
