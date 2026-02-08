@@ -1,0 +1,34 @@
+Data protection and recovery are fundamental aspects of data management. 
+It's essential to have systems in place to ensure that data can be recovered in case of accidental deletion or corruption. 
+The DevOps team has received a requirement for implementing such measures for one of the S3 buckets they are managing.
+
+The s3 bucket name is devops-s3-12539, enable versioning for this bucket.
+
+Using the AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your AWS credentials.
+2. Navigate to the S3 Service:
+In the search bar at the top, type S3 and select S3 from the list of services.
+3. Find the Bucket:
+In the S3 dashboard, locate the bucket named devops-s3-12539 from the list of buckets and click on the bucket name.
+4. Enable Versioning:
+Inside the bucket view, go to the Properties tab.
+Scroll down to the Bucket Versioning section.
+Click Edit.
+Choose Enable to enable versioning for the bucket.
+5. Save Changes:
+After selecting Enable, click on the Save changes button.
+Versioning is now enabled for the devops-s3-12539 bucket.
+
+Using the AWS CLI:
+
+1. Enable Versioning for the S3 Bucket:
+To enable versioning on the devops-s3-12539 bucket using the AWS CLI, run the following command:
+
+aws s3api put-bucket-versioning --bucket devops-s3-12539 --versioning-configuration Status=Enabled
+
+2. Verify Versioning is Enabled:
+To verify that versioning is enabled for the bucket, run:
+
+aws s3api get-bucket-versioning --bucket devops-s3-12539
