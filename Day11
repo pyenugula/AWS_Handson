@@ -1,0 +1,38 @@
+An instance named xfusion-ec2 and an elastic network interface named xfusion-eni already exists in us-east-1 region.
+Attach the xfusion-eni network interface to the xfusion-ec2 instance.
+Make sure status is attached before submitting the task.
+
+Steps Using AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+3. Locate the Network Interface (ENI):
+In the left sidebar, under Network & Security, click on Network Interfaces.
+Find the xfusion-eni network interface in the list.
+4. Attach the Network Interface to the EC2 Instance:
+Select the xfusion-eni network interface by clicking on the checkbox next to it.
+In the Actions dropdown, click on Attach.
+In the Attach Network Interface window:
+Instance: Select the xfusion-ec2 instance.
+Device Index: Leave it as eth0 (this is the default value, indicating the primary network interface).
+Click Attach.
+5. Verify the Status:
+Once the network interface is attached, you can see the Status field for xfusion-eni in the Network Interfaces section of EC2. The status should show as attached.
+
+Steps Using AWS CLI:
+1. Attach the Network Interface to the EC2 Instance:
+To attach the xfusion-eni network interface to the xfusion-ec2 instance, run the following AWS CLI command:
+
+aws ec2 attach-network-interface --network-interface-id eni-xxxxxxxx --instance-id i-xxxxxxxxxxxxxxxxx --device-index 1 --region us-east-1
+
+Explanation:
+--network-interface-id eni-xxxxxxxx: Replace eni-xxxxxxxx with the actual network interface ID of the xfusion-eni ENI.
+--instance-id i-xxxxxxxxxxxxxxxxx: Replace i-xxxxxxxxxxxxxxxxx with the actual instance ID of the xfusion-ec2 instance.
+--device-index 1: The device index is typically 1 for additional network interfaces (eth1, eth2, etc.). The primary network interface usually has a device index of 0. If you're attaching the first ENI, use 1.
+--region us-east-1: Specifies the region (us-east-1 in this case).
+
+2. Verify the Attachment:
+To verify that the network interface has been successfully attached to the EC2 instance, run the following command:
+aws ec2 describe-network-interfaces --network-interface-ids eni-xxxxxxxx --region us-east-1 --query 'NetworkInterfaces[0].Attachment.Status'
