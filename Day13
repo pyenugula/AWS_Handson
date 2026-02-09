@@ -1,0 +1,44 @@
+For this task, create an AMI from an existing EC2 instance named devops-ec2 with the following requirement:
+Name of the AMI should be devops-ec2-ami, make sure AMI is in available state.
+
+Steps Using AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+3. Locate the Instance:
+In the EC2 dashboard, under Instances, find the devops-ec2 instance.
+4. Create an AMI from the Instance:
+Select the devops-ec2 instance by clicking on the checkbox next to it.
+From the Actions dropdown, select Image and templates > Create Image.
+5. Configure the AMI Details:
+In the Create Image window:
+Image Name: Enter devops-ec2-ami.
+You can also choose to create the image with or without additional configurations, such as whether to include the instance's reboot or the block device mapping.
+6. Create the AMI:
+Once all settings are configured, click Create Image to start the AMI creation process.
+7. Verify the AMI Status:
+In the left sidebar, under Images, click AMIs.
+Locate the devops-ec2-ami in the list.
+Check the State of the AMI. It should eventually show as available after a short period (this may take a few minutes).
+
+Steps Using AWS CLI:
+1. Create the AMI:
+To create an AMI from the devops-ec2 instance with the name devops-ec2-ami, run the following AWS CLI command:
+
+aws ec2 create-image --instance-id i-xxxxxxxxxxxxxxxxx --name "devops-ec2-ami" --no-reboot --region us-east-1
+
+Explanation:
+--instance-id i-xxxxxxxxxxxxxxxxx: Replace i-xxxxxxxxxxxxxxxxx with the actual instance ID of devops-ec2.
+--name "devops-ec2-ami": This is the name you want to give the AMI.
+--no-reboot: Optional. This ensures the instance is not rebooted during the image creation process. If you want the instance to reboot, you can omit this option.
+--region us-east-1: Specifies the region (us-east-1 in this case).
+
+2. Verify the AMI Status:
+After running the above command, you can verify the status of the AMI by using the following command:
+aws ec2 describe-images --filters "Name=name,Values=devops-ec2-ami" --region us-east-1 --query 'Images[0].State'
+
+3. Check the AMI ID:
+You can also check the AMI ID by running:
+aws ec2 describe-images --filters "Name=name,Values=devops-ec2-ami" --region us-east-1 --query 'Images[0].ImageId'
