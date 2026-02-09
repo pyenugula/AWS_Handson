@@ -1,0 +1,35 @@
+1) Delete the ec2 instance named datacenter-ec2 present in us-east-1 region.
+2) Before submitting your task, make sure instance is in terminated state.
+
+Steps Using AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+3. Locate the Instance:
+In the EC2 dashboard, under Instances, find the datacenter-ec2 instance in the us-east-1 region.
+4. Terminate the Instance:
+Select the datacenter-ec2 instance by clicking the checkbox next to it.
+From the Actions dropdown, select Instance State > Terminate.
+A confirmation prompt will appear. Confirm that you want to terminate the instance.
+5. Verify the Instance Status:
+After terminating the instance, wait a few minutes for the State column to show terminated.
+You can verify the instance status by checking the State column under Instances in the EC2 dashboard.
+Once the instance is in the terminated state, the task is complete.
+
+Steps Using AWS CLI:
+1. Terminate the Instance:
+To terminate the EC2 instance named datacenter-ec2, you first need to find the instance ID and then use the following command:
+
+aws ec2 describe-instances --filters "Name=tag:Name,Values=datacenter-ec2" --region us-east-1 --query 'Reservations[0].Instances[0].InstanceId'
+
+This command will return the instance ID of the datacenter-ec2 instance. Once you have the instance ID, you can terminate the instance with the following command:
+
+aws ec2 terminate-instances --instance-ids i-xxxxxxxxxxxxxxxxx --region us-east-1
+
+2. Verify the Instance State:
+You can verify the status of the terminated instance with the following command:
+
+aws ec2 describe-instances --instance-ids i-xxxxxxxxxxxxxxxxx --region us-east-1 --query 'Reservations[0].Instances[0].State.Name'
+
