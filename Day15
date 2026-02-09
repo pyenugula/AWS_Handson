@@ -1,0 +1,39 @@
+Create a snapshot of an existing volume named xfusion-vol in us-east-1 region.
+
+1) The name of the snapshot must be xfusion-vol-ss.
+
+2) The description must be xfusion Snapshot.
+
+3) Make sure the snapshot status is completed before submitting the task.
+
+Steps Using AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+3. Locate the Volume:
+In the left sidebar, under Elastic Block Store, click on Volumes.
+Find the xfusion-vol volume in the list.
+4. Create Snapshot:
+Select the xfusion-vol volume by clicking the checkbox next to it.
+From the Actions dropdown, select Create Snapshot.
+In the Create Snapshot window:
+Name: Enter xfusion-vol-ss for the snapshot name.
+Description: Enter xfusion Snapshot.
+5. Create the Snapshot:
+Once the name and description are entered, click Create Snapshot to start the snapshot creation process.
+6. Verify Snapshot Status:
+In the left sidebar, under Elastic Block Store, click on Snapshots.
+Locate the xfusion-vol-ss snapshot in the list and check the Status column. It should show completed after a few minutes.
+
+Steps Using AWS CLI:
+1. Create the Snapshot:
+To create a snapshot of the xfusion-vol volume with the name xfusion-vol-ss and the description xfusion Snapshot, run the following AWS CLI command:
+
+aws ec2 create-snapshot --volume-id vol-xxxxxxxxxxxxxxxxx --description "xfusion Snapshot" --tag "Key=Name,Value=xfusion-vol-ss" --region us-east-1
+
+2. Verify the Snapshot Status:
+To verify that the snapshot is successfully created and its status is completed, run the following command:
+
+aws ec2 describe-snapshots --filters "Name=tag:Name,Values=xfusion-vol-ss" --region us-east-1 --query 'Snapshots[0].State'
