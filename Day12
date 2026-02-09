@@ -1,0 +1,39 @@
+An instance named datacenter-ec2 and a volume named datacenter-volume already exists in us-east-1 region.
+Attach the datacenter-volume volume to the datacenter-ec2 instance, make sure to set the device name to /dev/sdb while attaching the volume.
+
+Steps Using AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+3. Locate the Volume:
+In the left sidebar, under Elastic Block Store, click on Volumes.
+Find the datacenter-volume volume in the list.
+4. Attach the Volume to the EC2 Instance:
+Select the datacenter-volume by clicking the checkbox next to it.
+From the Actions dropdown, select Attach Volume.
+In the Attach Volume window:
+Instance: Select the datacenter-ec2 instance from the dropdown.
+Device: Set the device name to /dev/sdb.
+Click Attach.
+5. Verify the Attachment:
+After attaching, go to the Instances section, find the datacenter-ec2 instance, and verify that the volume appears under the Block Devices section. 
+You should see the volume with the device name /dev/sdb listed.
+
+Steps Using AWS CLI:
+1. Attach the Volume to the EC2 Instance:
+To attach the datacenter-volume volume to the datacenter-ec2 instance with the device name /dev/sdb, run the following AWS CLI command:
+
+aws ec2 attach-volume --volume-id vol-xxxxxxxxxxxxxxxxx --instance-id i-xxxxxxxxxxxxxxxxx --device /dev/sdb --region us-east-1
+
+Explanation:
+--volume-id vol-xxxxxxxxxxxxxxxxx: Replace vol-xxxxxxxxxxxxxxxxx with the actual volume ID of datacenter-volume.
+--instance-id i-xxxxxxxxxxxxxxxxx: Replace i-xxxxxxxxxxxxxxxxx with the actual instance ID of the datacenter-ec2 instance.
+--device /dev/sdb: This sets the device name as /dev/sdb for the attached volume.
+--region us-east-1: Specifies the region (us-east-1 in this case).
+
+2. Verify the Volume Attachment:
+To verify that the volume was successfully attached, run the following command:
+
+aws ec2 describe-volumes --volume-ids vol-xxxxxxxxxxxxxxxxx --region us-east-1 --query 'Volumes[0].Attachments[0].State'
