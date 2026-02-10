@@ -1,0 +1,28 @@
+An IAM user named iamuser_mark and a policy named iampolicy_mark already exist. Attach the IAM policy iampolicy_mark to the IAM user iamuser_mark.
+
+Steps Using AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to IAM Service:
+In the search bar at the top, type IAM and select IAM from the list of services.
+3. Locate the IAM User:
+In the IAM dashboard, click on Users in the left sidebar.
+Find the iamuser_mark user in the list of users.
+4. Attach the IAM Policy to the User:
+Select the iamuser_mark user.
+In the Permissions tab, click Add permissions.
+Select Attach policies directly.
+Search for iampolicy_mark in the policy list.
+Select the checkbox next to iampolicy_mark to attach it to the user.
+Click Next: Review, then click Add permissions to complete the process.
+
+Steps Using AWS CLI:
+1. Attach the IAM Policy to the User:
+To attach the policy iampolicy_mark to the user iamuser_mark, use the following AWS CLI command:
+aws iam attach-user-policy --user-name iamuser_mark --policy-arn arn:aws:iam::aws:policy/iampolicy_mark
+
+2. Verify the Policy Attachment:
+To verify that the policy has been successfully attached to the user, run the following command:
+
+aws iam list-attached-user-policies --user-name iamuser_mark
