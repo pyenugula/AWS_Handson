@@ -1,0 +1,76 @@
+Day18:
+Create an IAM policy named iampolicy_anita in us-east-1 region, it must allow read-only access to the EC2 console,
+i.e this policy must allow users to view all instances, AMIs, and snapshots in the Amazon EC2 console.
+
+Steps Using AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Navigate to IAM Service:
+In the search bar at the top, type IAM and select IAM from the list of services.
+3. Create a New IAM Policy:
+In the left sidebar under Access management, click on Policies.
+Click the Create policy button.
+4. Define the Policy JSON:
+Choose the JSON tab.
+Copy and paste the following policy JSON, which allows read-only access to EC2 resources (instances, AMIs, and snapshots):
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeImages",
+        "ec2:DescribeSnapshots",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeKeyPairs",
+        "ec2:DescribeVolumes",
+        "ec2:DescribeVolumesModifications",
+        "ec2:DescribeTags"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+This policy grants the user permission to:
+View EC2 instances, AMIs, snapshots, volumes, security groups, and tags.
+5. Review and Create the Policy:
+Click Review policy.
+Name the policy iampolicy_anita.
+Add an optional description (e.g., "Read-only access to EC2 instances, AMIs, and snapshots").
+Click Create policy to create the policy.
+
+Steps Using AWS CLI:
+1. Create the IAM Policy:
+To create the IAM policy iampolicy_anita with read-only access to EC2, use the following AWS CLI command. Create a JSON file with the policy or directly use the JSON string.
+Step 1: Create the policy JSON file (policy.json):
+Create a file named policy.json with the following content:
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeImages",
+        "ec2:DescribeSnapshots",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeKeyPairs",
+        "ec2:DescribeVolumes",
+        "ec2:DescribeVolumesModifications",
+        "ec2:DescribeTags"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+Step 2: Run the following AWS CLI command to create the policy:
+aws iam create-policy --policy-name iampolicy_anita --policy-document file://policy.json --region us-east-1
+Explanation:
+--policy-name iampolicy_anita: The name of the IAM policy.
+--policy-document file://policy.json: The path to the JSON file containing the policy definition.
+--region us-east-1: The region (although IAM policies are global, this parameter specifies the region for CLI interactions).
+2. Verify the Policy Creation:
+You can verify the policy was created successfully by running:
+aws iam get-policy --policy-arn arn:aws:iam::aws:policy/iampolicy_anita --region us-east-1
