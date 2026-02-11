@@ -1,0 +1,66 @@
+The Nautilus DevOps Team has received a new request from the Development Team to set up a new EC2 instance. 
+This instance will be used to host a new application that requires a stable IP address. 
+To ensure that the instance has a consistent public IP, an Elastic IP address needs to be associated with it. 
+The instance will be named datacenter-ec2, and the Elastic IP will be named datacenter-eip.
+This setup will help the Development Team to have a reliable and consistent access point for their application.
+
+Create an EC2 instance named datacenter-ec2 using any linux AMI like ubuntu, the Instance type must be t2.micro and associate an Elastic IP address
+with this instance, name it as datacenter-eip.
+
+Steps Using AWS Console:
+1. Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+2. Launch a New EC2 Instance:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+In the EC2 dashboard, click Launch Instance.
+3. Configure the Instance:
+Choose an Amazon Machine Image (AMI):
+Select Ubuntu from the list of available Linux AMIs. If you don't see it, you can search for "Ubuntu" in the AMI search bar.
+Choose an appropriate version (e.g., Ubuntu Server 20.04 LTS).
+Choose an Instance Type:
+Select t2.micro (eligible for the free tier if your account qualifies).
+Configure Instance Details:
+For the VPC and subnet, select the appropriate options or leave the default.
+You can keep the other default configurations, but make sure Auto-assign Public IP is enabled (to make sure the instance gets a public IP).
+Add Storage:
+The default 8 GiB size should be sufficient, but adjust it based on your needs.
+Add Tags (Optional):
+Add a tag with the Key Name and Value datacenter-ec2 to help identify the instance.
+Configure Security Group:
+Create a new security group or use the default one. Ensure that SSH (port 22) is open for your IP address to access the instance.
+Review and Launch:
+Review all settings, then click Launch.
+Select or Create a Key Pair:
+If you already have a key pair, select it. If not, create a new one. Download the .pem file to connect to your instance later.
+4. Associate an Elastic IP (EIP) to the Instance:
+Allocate a New Elastic IP:
+In the EC2 dashboard, under Network & Security, click Elastic IPs.
+Click Allocate new address and choose the appropriate region (e.g., us-east-1). Then, click Allocate.
+Associate the Elastic IP with the Instance:
+Select the newly allocated Elastic IP (datacenter-eip).
+Click Actions > Associate Elastic IP address.
+In the Instance field, select the datacenter-ec2 instance from the list.
+Click Associate.
+5. Verify the Setup:
+Go to Instances and find the datacenter-ec2 instance. It should have the public Elastic IP (datacenter-eip) associated with it.
+Verify that the Elastic IP is correctly listed under the Elastic IPs section.
+
+Steps Using AWS CLI:
+1. Allocate an Elastic IP:
+To allocate a new Elastic IP address, run the following command:
+aws ec2 allocate-address --region us-east-1
+This will return an allocation ID and public IP, which you can use for associating with the EC2 instance. Note the PublicIp and AllocationId from the output.
+2. Launch the EC2 Instance:
+Run the following AWS CLI command to launch the datacenter-ec2 instance using an Ubuntu AMI:
+
+aws ec2 run-instances --image-id ami-xxxxxxxxxxxxxxxxx --instance-type t2.micro --key-name YourKeyName --security-group-ids sg-xxxxxxxx --subnet-id subnet-xxxxxxxx --associate-public-ip-address --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=datacenter-ec2}]' --region us-east-1
+
+3. Associate the Elastic IP:
+Once the instance is running, associate the Elastic IP to the datacenter-ec2 instance:
+
+aws ec2 associate-address --instance-id i-xxxxxxxxxxxxxxxxx --allocation-id eipalloc-xxxxxxxx --region us-east-1
+
+4. Verify the Setup:
+To verify that the Elastic IP has been associated, run:
+aws ec2 describe-addresses --region us-east-1 --allocation-ids eipalloc-xxxxxxxx
