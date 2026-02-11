@@ -1,0 +1,73 @@
+Create a New Private S3 Bucket: Name the bucket nautilus-sync-9520.
+
+Data Migration: Migrate the entire data from the existing nautilus-s3-23140 bucket to the new nautilus-sync-9520 bucket.
+
+Ensure Data Consistency: Ensure that both buckets have the same data.
+
+Use AWS CLI: Use the AWS CLI to perform the creation and data migration tasks.
+
+Step 1: Create the New Private S3 Bucket
+First, we will create a new private S3 bucket named nautilus-sync-9520.
+Create the S3 Bucket:
+Use the following AWS CLI command to create the new S3 bucket in your desired region. For example, if you want to create it in the us-east-1 region, run:
+
+aws s3api create-bucket --bucket nautilus-sync-9520 --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
+
+An error occurred (InvalidLocationConstraint) when calling the CreateBucket operation: The specified location-constraint is not valid
+
+Cause of the Error:
+The LocationConstraint is required when creating a bucket in regions other than us-east-1 (North Virginia). 
+If you're creating the bucket in the us-east-1 region, you don't need to specify the LocationConstraint.
+
+
+~ on ☁️  (us-east-1) ✖ aws s3api create-bucket --bucket nautilus-sync-9520 --region us-east-1 
+{
+    "Location": "/nautilus-sync-9520"
+}
+
+
+Set the Bucket to Private:
+By default, the bucket will be private. However, you can explicitly set the permissions to ensure it's private by using the following command:
+
+aws s3api put-bucket-acl --bucket nautilus-sync-9520 --acl private
+
+An error occurred (AccessControlListNotSupported) when calling the PutBucketAcl operation: The bucket does not allow ACLs
+
+Note : when you create a bucket using the above command that already create a private bucket by default, without specifying any ACL
+
+Step 2: Migrate Data from nautilus-s3-23140 to nautilus-sync-9520
+Next, we will use the aws s3 sync command to migrate all data from the existing bucket nautilus-s3-23140 to the new bucket nautilus-sync-9520. The sync command ensures that all files are copied over, and only new or modified files are transferred.
+Migrate Data Using aws s3 sync:
+Run the following command to copy data from nautilus-s3-23140 to nautilus-sync-9520:
+
+aws s3 sync s3://nautilus-s3-23140/ s3://nautilus-sync-9520/
+
+This will recursively copy all objects from the nautilus-s3-23140 bucket to the nautilus-sync-9520 bucket.
+
+Step 3: Ensure Data Consistency
+After migrating the data, it is important to ensure that both buckets have the same data. You can do this by comparing the contents of the two buckets using the aws s3 sync command with the --dryrun option, which will show you the differences without making any changes.
+Verify Data Consistency:
+To verify that both buckets have the same data, run the following command:
+
+~ on ☁️  (us-east-1) ➜  aws s3 sync s3://nautilus-s3-23140/ s3://nautilus-sync-9520/ --dryrun
+
+--dryrun: This option performs a "dry run" and lists the differences between the two buckets, but does not make any changes.
+If no output is returned, it means both buckets have the same data.
+
+Step 4: Verify the Final Data Integrity
+Once the sync command completes, you can verify that both buckets have the same content by comparing the list of objects in both buckets:
+
+
+~ on ☁️  (us-east-1) ➜  aws s3 ls s3://nautilus-s3-23140/ --recursive| wc -l 
+3349
+
+~ on ☁️  (us-east-1) ➜  aws s3 ls 
+2026-02-11 14:24:06 nautilus-s3-23140
+2026-02-11 14:32:08 nautilus-sync-9520
+
+~ on ☁️  (us-east-1) ➜  aws s3 ls s3://nautilus-sync-9520/ --recursive| wc -l 
+3349
+
+
+
+
