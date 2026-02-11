@@ -1,0 +1,98 @@
+
+
+Step 1: Launch the EC2 Instance (xfusion-ec2)
+Using the AWS Console:
+Login to AWS Console:
+Go to the AWS Management Console and log in with your credentials.
+Navigate to EC2:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+Launch a New Instance:
+Click Launch Instance.
+AMI: Select Ubuntu (choose an appropriate version, e.g., Ubuntu Server 20.04 LTS).
+Instance Type: Select t2.micro (for a lightweight application or if using the free tier).
+Configure Instance: Set any necessary configurations (you can leave it at default for now).
+Configure Security Group: Create or select an existing security group that allows SSH (port 22) access from your IP address.
+Key Pair: Select an existing SSH key pair or create a new one (you'll need this to SSH into the instance later).
+Click Review and Launch to finalize and launch the instance.
+Verify the EC2 Instance:
+After the instance is launched, go to the Instances section in the EC2 dashboard and make sure the instance is running and has a public IP address assigned.
+
+Step 2: Create a CloudWatch Alarm for CPU Utilization
+Using the AWS Console:
+Navigate to CloudWatch:
+In the AWS Console, go to the CloudWatch service (search for CloudWatch in the top search bar).
+Create a New Alarm:
+In the CloudWatch dashboard, click on Alarms in the left-hand menu and then click the Create Alarm button.
+Choose the Metric:
+Select Select metric.
+Under Browse, click on EC2 and then Per-Instance Metrics.
+Find the CPUUtilization metric for your xfusion-ec2 instance (you might need to find it by instance ID).
+Specify the Alarm Conditions:
+Under the Conditions section, set the following:
+Statistic: Select Average.
+Threshold type: Static.
+Whenever CPUUtilization is: Greater than or equal to.
+Set the Threshold value to 90 (for 90% CPU utilization).
+Period: Set this to 5 minutes.
+Evaluate the alarm: Set the evaluation to 1 consecutive period.
+Set the Alarm Actions:
+In the Actions section, select In Alarm.
+Send a notification to: Select the existing SNS topic xfusion-sns-topic (this is already created and you can select it from the dropdown).
+Name the Alarm:
+Give your alarm a name, e.g., xfusion-alarm.
+Create the Alarm:
+Click Create alarm to finalize the setup.
+
+Step 3: Verify the Alarm and SNS Notification
+Check CloudWatch Alarms:
+In the CloudWatch console, under Alarms, verify that the alarm xfusion-alarm has been created.
+You can check the alarm's status and see if it's OK or ALARM.
+Verify SNS Notifications:
+Make sure that the SNS topic xfusion-sns-topic has subscriptions to send notifications (via email or other methods).
+If you don't see any subscriptions, go to SNS > Topics, select xfusion-sns-topic, and add a subscription (e.g., email) to receive notifications.
+Simulate the Alarm (Optional):
+You can simulate high CPU utilization on the xfusion-ec2 instance by running a CPU-intensive task (e.g., stress or a similar tool) to see if the alarm triggers and sends notifications.
+
+Step 4: Verify the EC2 Instance's Security Group
+Ensure Security Group Allows Necessary Traffic:
+If your xfusion-ec2 instance needs to receive traffic on certain ports (for example, HTTP port 80 for a web app), make sure the EC2 instance's security group allows that traffic.
+Navigate to EC2 > Security Groups and ensure the security group attached to your xfusion-ec2 instance has the necessary inbound rules (e.g., HTTP, HTTPS, etc.).
+
+Using the AWS CLI:
+You can also use the AWS CLI to automate this process.
+Step 1: Launch the EC2 Instance (CLI)
+Run the following command to launch an EC2 instance using an Ubuntu AMI:
+aws ec2 run-instances \
+    --image-id ami-xxxxxxxxxxxxxxxxx \  # Replace with the appropriate Ubuntu AMI ID for your region
+    --instance-type t2.micro \
+    --key-name YourKeyName \
+    --security-group-ids sg-xxxxxxxx \  # Replace with your security group ID
+    --subnet-id subnet-xxxxxxxx \       # Replace with the appropriate subnet ID
+    --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=xfusion-ec2}]' \
+    --region us-east-1
+Step 2: Create CloudWatch Alarm (CLI)
+Run the following CLI command to create a CloudWatch alarm for CPU utilization:
+aws cloudwatch put-metric-alarm \
+    --alarm-name xfusion-alarm \
+    --metric-name CPUUtilization \
+    --namespace AWS/EC2 \
+    --statistic Average \
+    --period 300 \
+    --threshold 90 \
+    --comparison-operator GreaterThanOrEqualToThreshold \
+    --evaluation-periods 1 \
+    --alarm-actions arn:aws:sns:us-east-1:123456789012:xfusion-sns-topic \
+    --dimensions Name=InstanceId,Value=i-xxxxxxxxxxxxxxxxx \  # Replace with your instance ID
+    --region us-east-1
+Alarm Actions: Replace the arn:aws:sns:us-east-1:123456789012:xfusion-sns-topic with the ARN of the SNS topic you are using.
+Summary of Steps:
+Launch EC2 Instance: Create an EC2 instance named xfusion-ec2 with an Ubuntu AMI and ensure it's publicly accessible.
+Create CloudWatch Alarm: Create an alarm for CPU utilization on xfusion-ec2 that triggers if CPU usage exceeds 90% for 5 minutes, and sends notifications to xfusion-sns-topic.
+Verify Alarm & Notifications: Test and verify that the alarm triggers as expected and that notifications are sent to xfusion-sns-topic.
+This setup will ensure that your application running on xfusion-ec2 is monitored for high CPU usage, and any issue that exceeds the threshold will be promptly notified via SNS.
+
+
+
+
+
+
