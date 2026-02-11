@@ -1,0 +1,43 @@
+Day 24: Setting Up an Application Load Balancer for an EC2 Instance
+
+Step 1: Create a Security Group for the Load Balancer
+Why?: Security groups act as firewalls. We need to ensure that the load balancer can accept public HTTP traffic (on port 80).
+What to do?
+Create a security group (devops-sg) and add a rule to allow HTTP traffic (port 80) from anyone (0.0.0.0/0).
+This ensures that the Application Load Balancer (ALB) can handle HTTP requests from the internet.
+
+Step 2: Create a Target Group for EC2 Instances
+Why?: A target group allows the ALB to forward incoming requests to specific EC2 instances (or other targets like Lambda functions).
+What to do?
+Create a Target Group named devops-tg with the protocol set to HTTP and port 80.
+This means the ALB will forward traffic to your EC2 instance (or instances) on port 80.
+Target Group ensures that the load balancer knows which EC2 instances (targets) to send the traffic to.
+
+Step 3: Create an Application Load Balancer (ALB)
+Why?: The ALB is responsible for routing incoming traffic from the internet to your EC2 instance. This allows scalability and reliability for applications in production.
+What to do?
+Create an Internet-facing Application Load Balancer.
+Attach the security group (devops-sg) to this ALB.
+Set the Listener to HTTP on port 80. The listener listens for incoming HTTP requests and forwards them to the target group (devops-tg).
+Attach the Target Group (devops-tg) to the ALB, so it knows where to send the incoming traffic (to your EC2 instance on port 80).
+
+Step 4: Register the EC2 Instance with the Target Group
+Why?: The ALB needs to know which EC2 instance to forward traffic to. Registering the instance in the target group allows the ALB to route the requests.
+What to do?
+Register your EC2 instance (devops-ec2) to the Target Group (devops-tg).
+This means the ALB can send incoming traffic to devops-ec2.
+
+Step 5: Configure EC2 Security Group to Allow Traffic from the ALB
+Why?: The EC2 instance's security group must allow traffic from the ALB on port 80.
+What to do?
+Ensure that the EC2 security group allows incoming traffic on port 80.
+The traffic should be allowed from the load balancer's security group (not the public internet).
+
+Step 6: Test and Verify
+Why?: After configuring everything, we need to test if the ALB is routing traffic correctly to the EC2 instance.
+What to do?
+Use the DNS name of the Application Load Balancer (which is created automatically) to test access.
+For example: http://devops-alb-1234567890.us-east-1.elb.amazonaws.com.
+This should route the traffic to devops-ec2 on port 80.
+
+
