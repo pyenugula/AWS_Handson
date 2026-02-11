@@ -1,0 +1,72 @@
+Steps to Accomplish the Task:
+1. Create the EC2 Instance (devops-ec2) in AWS:
+AWS Console:
+Login to AWS Console:
+Go to the AWS Management Console.
+Log in with your credentials.
+Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+Launch the EC2 Instance:
+Click Launch Instance.
+Choose an AMI (Ubuntu/Linux) for the Instance:
+Select Ubuntu or any other Linux distribution that you prefer (e.g., Ubuntu Server 20.04 LTS).
+Choose the Instance Type:
+Select t2.micro (eligible for the free tier if your account qualifies).
+Configure Instance Details:
+Set the network settings as per your requirements (for simplicity, use the default settings).
+Add Storage:
+The default 8 GiB size should be sufficient, but you can adjust it according to your needs.
+Configure Security Group:
+Add a Security Group to allow SSH (port 22) access.
+Allow SSH access from the aws-client host's IP address or the public IP of the aws-client host (depending on the network setup).
+Create/Use an SSH Key Pair:
+Create a new key pair or use an existing one. Download the .pem key file if you create a new key pair, as it will be required for SSH access.
+Review and Launch:
+Review the configuration and click Launch.
+
+AWS CLI:
+Create the EC2 Instance with AWS CLI:
+You can run the following command to launch an EC2 instance using the t2.micro type with Ubuntu:
+aws ec2 run-instances \
+  --image-id ami-xxxxxxxxxxxxxxxxx \   # Replace with the appropriate Ubuntu AMI ID for your region
+  --instance-type t2.micro \
+  --key-name YourKeyName \             # Replace with your existing SSH key name or create a new one
+  --security-group-ids sg-xxxxxxxx \   # Replace with your security group ID (with SSH access)
+  --subnet-id subnet-xxxxxxxx \        # Replace with the appropriate subnet ID
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=devops-ec2}]' \
+  --region us-east-1
+Replace placeholders like ami-xxxxxxxxxxxxxxxxx (Ubuntu AMI), YourKeyName, sg-xxxxxxxx (security group), and subnet-xxxxxxxx (subnet ID) with appropriate values.
+2. Create SSH Key Pair on the aws-client Host:
+On the aws-client Host:
+Check if the Key Already Exists:
+Log in to the aws-client host (e.g., using SSH). Check if the SSH key (id_rsa) exists in the /root/.ssh/ folder:
+ls /root/.ssh/id_rsa
+Create the SSH Key if It Doesn’t Exist:
+If the key doesn’t exist, generate a new SSH key pair on the aws-client host:
+ssh-keygen -t rsa -b 2048 -f /root/.ssh/id_rsa -N ""
+This command creates a new SSH key pair with the name id_rsa and saves it under /root/.ssh/.
+The -N "" option sets an empty passphrase for passwordless SSH access.
+3. Add the SSH Public Key to the EC2 Instance:
+Get the Public Key:
+On the aws-client host, get the contents of the public key (id_rsa.pub):
+cat /root/.ssh/id_rsa.pub
+Copy the output (the public key) to use in the next step.
+SSH into the EC2 Instance:
+SSH into the EC2 Instance using the key pair (.pem file) you downloaded during EC2 instance creation. Run the following:
+ssh -i /path/to/your/key.pem ubuntu@<ec2-public-ip>
+Replace /path/to/your/key.pem with the path to your .pem key file.
+Replace <ec2-public-ip> with the public IP address of your EC2 instance (devops-ec2).
+Add the Public Key to authorized_keys:
+Once logged in to the EC2 instance, add the public key from the aws-client host to the authorized_keys file for the root user.
+Ensure the .ssh directory exists for the root user:
+mkdir -p /root/.ssh
+Add the public key to the authorized_keys file:
+echo "your-public-key" >> /root/.ssh/authorized_keys
+Replace "your-public-key" with the actual public key copied from /root/.ssh/id_rsa.pub on the aws-client host.
+Set appropriate permissions for the .ssh directory and the authorized_keys file:
+chmod 700 /root/.ssh
+chmod 600 /root/.ssh/authorized_keys
+4. Verify Passwordless SSH Access:
+From the aws-client host, test the passwordless SSH access to the datacenter-ec2 instance using the newly created key:
+ssh -i /root/.ssh/id_rsa root@<ec2-public-ip>
+You should be able to log in without entering a password, confirming that the SSH setup is successful.
