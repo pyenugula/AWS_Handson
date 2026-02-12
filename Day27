@@ -1,0 +1,86 @@
+Day27:
+Create a public VPC named devops-pub-vpc, and a subnet named devops-pub-subnet under the same, make sure public IP is being auto assigned to resources under this subnet. 
+Further, create an EC2 instance named devops-pub-ec2 under this VPC with instance type t2.micro. Make sure SSH port 22 is open for this instance and accessible over the internet.
+
+Step 1: Create the Public VPC (devops-pub-vpc)
+Using AWS Console:
+Login to AWS Console:
+Go to the AWS Management Console and log in with your credentials.
+Navigate to VPC:
+In the search bar, type VPC and select VPC from the list of services.
+Create a VPC:
+In the VPC dashboard, click Create VPC.
+For VPC Name, enter devops-pub-vpc.
+Select the IPv4 CIDR block (e.g., 10.0.0.0/16 for a large address range or any other suitable block).
+Choose the Tenancy option (default is fine for most cases).
+Click Create VPC.
+
+Step 2: Create the Public Subnet (devops-pub-subnet)
+Navigate to Subnets:
+In the left-hand sidebar, under Subnets, click Create Subnet.
+Create the Subnet:
+For Subnet Name, enter devops-pub-subnet.
+Select the VPC you just created (devops-pub-vpc).
+Choose an Availability Zone (you can leave it at the default).
+Set the CIDR block for the subnet (e.g., 10.0.1.0/24).
+Make sure to Enable auto-assign public IP (this is critical to ensure EC2 instances in this subnet get a public IP).
+Create the Subnet:
+Click Create to finalize the creation of the subnet.
+
+Step 3: Create an Internet Gateway and Attach it to the VPC
+Navigate to Internet Gateways:
+In the VPC Dashboard, go to Internet Gateways and click Create internet gateway.
+Attach the Internet Gateway:
+Name the gateway (e.g., devops-pub-igw).
+Click Create.
+After creation, select the gateway and click Actions > Attach to VPC.
+Select your devops-pub-vpc and click Attach.
+
+Step 4: Create a Route Table for Internet Access
+Navigate to Route Tables:
+In the VPC Dashboard, go to Route Tables and click Create route table.
+Create the Route Table:
+For Route Table Name, enter devops-pub-rt.
+Select your VPC (devops-pub-vpc).
+Click Create.
+Update the Route Table for Internet Access:
+After the route table is created, select it and click on Routes tab.
+Click Edit routes > Add route.
+For the Destination, enter 0.0.0.0/0 (to allow all traffic).
+For the Target, select the Internet Gateway (devops-pub-igw).
+Click Save routes.
+Associate the Route Table with the Public Subnet:
+In the Route Tables dashboard, select your devops-pub-rt.
+Click Subnet Associations > Edit subnet associations.
+Select your devops-pub-subnet and click Save.
+
+Step 5: Launch the EC2 Instance (devops-pub-ec2)
+Navigate to EC2 Dashboard:
+In the EC2 Dashboard, click Launch Instance to create a new instance.
+Choose an Ubuntu AMI:
+Select an Ubuntu AMI (e.g., Ubuntu Server 20.04 LTS).
+Choose an Instance Type:
+Select t2.micro (eligible for the free tier).
+Configure Instance Details:
+In the Network field, select the VPC (devops-pub-vpc).
+In the Subnet field, select devops-pub-subnet.
+Ensure Auto-assign Public IP is set to Enable (this will automatically assign a public IP to the EC2 instance).
+Configure Security Group:
+Create a new security group or use an existing one.
+Add an Inbound Rule for SSH (port 22):
+Type: SSH
+Port: 22
+Source: 0.0.0.0/0 (to allow access from anywhere on the internet).
+Click Review and Launch.
+Launch the Instance:
+Select an SSH key pair to access the instance, or create a new one if necessary.
+Click Launch to start the instance.
+
+Step 6: Access the EC2 Instance via SSH
+Find the Public IP of the devops-pub-ec2 instance.
+Go to Instances in the EC2 Dashboard and find the devops-pub-ec2 instance.
+Note down the Public IP.
+SSH into the Instance:
+Open your terminal and SSH into the EC2 instance using the following command (replace the IP and key path):
+ssh -i /path/to/your-key.pem ubuntu@<public-ip>
+Replace /path/to/your-key.pem with the actual path to your SSH key and <public-ip> with the EC2 instance's public IP.
