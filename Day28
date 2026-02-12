@@ -1,0 +1,67 @@
+Creating a Private ECR Repository
+
+Create a private ECR repository named devops-ecr. 
+There is a Dockerfile under /root/pyapp directory on aws-client host, build a docker image using this Dockerfile and push the same to the newly created ECR repo,
+the image tag must be latest
+
+Step 1: Create the Private ECR Repository (devops-ecr)
+Login to AWS Console:
+Go to the AWS Management Console and log in with your credentials.
+Navigate to ECR:
+In the search bar, type ECR and select Elastic Container Registry from the list of services.
+Create the ECR Repository:
+Click Repositories in the left sidebar, then click Create repository.
+Set the Repository name to devops-ecr and leave the visibility as Private (this is the default).
+Click Create repository.
+
+Step 2: Build the Docker Image from the Dockerfile
+Login to your aws-client host:
+Make sure you have Docker installed on your aws-client host. You can check this by running docker --version. If Docker isn't installed, follow the Docker installation guide for your system.
+Navigate to the Dockerfile:
+Go to the directory where the Dockerfile is located (/root/pyapp).
+cd /root/pyapp
+Build the Docker Image:
+Run the following command to build the Docker image from the Dockerfile. We will name the image devops-ecr-image and tag it as latest.
+docker build -t devops-ecr-image:latest .
+Explanation:
+-t devops-ecr-image:latest specifies the name and tag (latest) of the image.
+. refers to the current directory, which contains the Dockerfile.
+Verify the Image is Built:
+After the build completes, verify that the image is built successfully by running:
+docker images
+You should see devops-ecr-image listed in the output with the latest tag.
+
+Step 3: Authenticate Docker to Your ECR Repository
+Get the ECR Login Command:
+To authenticate Docker to your ECR registry, run the following AWS CLI command. This will authenticate Docker to the ECR registry:
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
+Replace <aws_account_id> with your actual AWS account ID.
+This command will authenticate Docker to push images to your private ECR repository.
+
+Step 4: Tag the Docker Image for ECR
+Tag the Image for ECR:
+After authentication, tag the image with your ECR repository URI to prepare it for pushing:
+docker tag devops-ecr-image:latest <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/devops-ecr:latest
+Replace <aws_account_id> with your AWS account ID.
+This command tags your devops-ecr-image as latest with the repository URL in ECR.
+
+Step 5: Push the Docker Image to ECR
+Push the Image:
+Now that the image is tagged for ECR, push it to your private ECR repository:
+docker push <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/devops-ecr:latest
+Replace <aws_account_id> with your AWS account ID.
+This command uploads the Docker image to your private ECR repository (devops-ecr) under the latest tag.
+Verify the Image in ECR:
+Once the push completes, go to your ECR console, select the devops-ecr repository, and you should see your Docker image listed with the latest tag.
+
+Step 6: Accessing the Docker Image from EC2 (or Other Services)
+Once the image is pushed to ECR, you can pull the image from EC2 instances or other AWS services that need to use it.
+Authenticate Docker on EC2 (if required):
+On an EC2 instance, use the same ECR login command to authenticate Docker:
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
+Pull the Docker Image:
+To pull the image to an EC2 instance, run:
+docker pull <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/devops-ecr:latest
+Run the Docker Image:
+After pulling the image, you can run the Docker container using:
+docker run -d <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/devops-ecr:latest
