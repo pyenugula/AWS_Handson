@@ -1,0 +1,83 @@
+As a member of the Nautilus DevOps Team, your task is to create an EC2 instance with the following specifications:
+Instance Name: The EC2 instance must be named xfusion-ec2.
+AMI: Use any available Ubuntu AMI to create this instance.
+User Data Script: Configure the instance to run a user data script during its launch. This script should:
+Install the Nginx package.
+Start the Nginx service.
+Security Group: Ensure that the instance allows HTTP traffic on port 80 from the internet.
+
+Steps Using AWS Console:
+Step 1: Create the EC2 Instance (xfusion-ec2)
+Login to AWS Console:
+Go to the AWS Management Console and log in with your credentials.
+Navigate to EC2 Service:
+In the search bar at the top, type EC2 and select EC2 from the list of services.
+Launch a New Instance:
+Click on Launch Instance to create a new EC2 instance.
+Choose an AMI (Ubuntu AMI):
+In the Choose an Amazon Machine Image (AMI) step, select an Ubuntu AMI (e.g., Ubuntu Server 20.04 LTS).
+Choose Instance Type:
+Select t2.micro (which is eligible for the free tier).
+Configure Instance Details:
+In the Configure Instance section, under User Data, enter the user data script that will install and start the Nginx service.
+User Data Script (enter this in the User data section under Advanced details):
+#!/bin/bash
+apt update -y
+apt install nginx -y
+systemctl start nginx
+systemctl enable nginx
+This script does the following:
+Updates the package list.
+Installs the Nginx web server.
+Starts the Nginx service.
+Enables the Nginx service to start automatically on boot.
+Configure Security Group:
+In the Configure Security Group step, create a new security group or select an existing one. Ensure that the security group allows the following inbound rule:
+Type: HTTP
+Protocol: TCP
+Port Range: 80
+Source: 0.0.0.0/0 (allowing access from anywhere on the internet).
+Review and Launch:
+Review the instance details, including the security group, instance type, and user data script.
+Click Launch to create the instance.
+Select or create a new SSH key pair to access the instance.
+
+Access the EC2 Instance:
+After the instance is running, go to the Instances section and find your xfusion-ec2 instance.
+It will have a public IP address. You can use this IP to access the Nginx server running on the instance.
+Test the Nginx server: Open a browser and enter the public IP of the EC2 instance. You should see the default Nginx welcome page.
+
+
+Steps Using AWS CLI:
+Step 1: Launch the EC2 Instance with User Data Script
+You can launch the instance using the AWS CLI by specifying the User Data Script and Security Group.
+Create a user data script file:
+First, create a text file (nginx_user_data.sh) on your local machine with the following contents:
+#!/bin/bash
+apt update -y
+apt install nginx -y
+systemctl start nginx
+systemctl enable nginx
+
+Launch the EC2 instance with the user data script:
+Use the following CLI command to launch the instance:
+aws ec2 run-instances \
+  --image-id ami-xxxxxxxxxxxxxxxxx \  # Replace with the correct Ubuntu AMI ID for your region
+  --instance-type t2.micro \
+  --key-name YourKeyName \            # Replace with your SSH key name
+  --security-group-ids sg-xxxxxxxx \  # Replace with your security group ID
+  --subnet-id subnet-xxxxxxxx \       # Replace with your subnet ID
+  --user-data file://nginx_user_data.sh \  # The path to your user data script
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=xfusion-ec2}]' \
+  --region us-east-1
+Explanation of Parameters:
+--image-id ami-xxxxxxxxxxxxxxxxx: Replace with the Ubuntu AMI ID for your region.
+--security-group-ids sg-xxxxxxxx: Replace with the security group ID that allows HTTP (port 80) access.
+--user-data file://nginx_user_data.sh: Specifies the path to the user data script file that will install Nginx and start the service.
+Step 2: Verify the EC2 Instance
+After the instance is launched, you can verify the instance's status and get its public IP address:
+aws ec2 describe-instances --filters "Name=tag:Name,Values=xfusion-ec2" --region us-east-1 --query "Reservations[0].Instances[0].PublicIpAddress"
+This command will return the public IP address of the xfusion-ec2 instance.
+Step 3: Verify Nginx Access
+Open a web browser and navigate to the public IP address of your EC2 instance. You should see the default Nginx welcome page.
+
