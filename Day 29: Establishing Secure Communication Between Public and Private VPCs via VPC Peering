@@ -1,0 +1,93 @@
+Establishing Secure Communication Between Public and Private VPCs via VPC Peering
+
+Day29:
+1) There is already an existing EC2 instance in the public vpc/subnet:
+  Name: nautilus-public-ec2
+2) There is already an existing Private VPC:
+  Name: nautilus-private-vpc
+  CIDR: 10.1.0.0/16
+3) There is already an existing Subnet in nautilus-private-vpc:
+  Name: nautilus-private-subnet
+  CIDR: 10.1.1.0/24
+4) There is already an existing EC2 instance in the private subnet:
+  Name: nautilus-private-ec2
+5) Create a Peering Connection between the Default VPC and the Private VPC:
+VPC Peering Connection Name: nautilus-vpc-peering
+6) Configure Route Tables to enable communication between the two VPCs.
+Ensure the private EC2 instance is accessible from the public EC2 instance.
+7) Test the Connection:
+Add /root/.ssh/id_rsa.pub public key to the public EC2 instance's ec2-user's authorized_keys to make sure we are able to ssh into this instance from AWS client host. 
+You may also need to update the security group of the private EC2 instance to allow ICMP traffic from the public/default VPC CIDR. This will enable you to ping the private instance from the public instance.
+SSH into the public EC2 instance and ensure that you can ping the private EC2 instance.
+
+
+Step 1: Create the VPC Peering Connection
+Using the AWS Console:
+Login to AWS Console:
+Go to the AWS Management Console and log in.
+Navigate to VPC Dashboard:
+In the search bar, type VPC and select VPC from the list of services.
+Create VPC Peering Connection:
+In the VPC Dashboard, click on Peering Connections under Peering in the left-hand menu.
+Click Create Peering Connection.
+Peering Connection Name: Enter nautilus-vpc-peering.
+Requester VPC: Select the Default VPC (Public VPC).
+Accepter VPC: Select nautilus-private-vpc.
+Click Create Peering Connection.
+Accept the Peering Request:
+Once the VPC Peering Connection is created, it will show as Pending Acceptance.
+Select the peering connection and click Actions > Accept Request.
+
+Step 2: Update Route Tables
+Configure Route Tables for Both VPCs:
+Update the Public VPC Route Table (for communication from the public VPC to the private VPC):
+In the VPC Dashboard, go to Route Tables.
+Select the route table associated with the Default VPC (Public VPC).
+Click Edit Routes > Add Route.
+Destination: Enter 10.1.0.0/16 (the CIDR block for nautilus-private-vpc).
+Target: Select the VPC Peering Connection nautilus-vpc-peering.
+Click Save Routes.
+Update the Private VPC Route Table (for communication from the private VPC to the public VPC):
+In the VPC Dashboard, go to Route Tables.
+Select the route table associated with the nautilus-private-vpc.
+Click Edit Routes > Add Route.
+Destination: Enter 0.0.0.0/0 (or the CIDR block of the public VPC if you need more specific routing).
+Target: Select the VPC Peering Connection nautilus-vpc-peering.
+Click Save Routes.
+
+Step 3: Modify Security Groups
+Allow ICMP and SSH Traffic:
+Modify the Security Group of nautilus-private-ec2:
+In the EC2 Dashboard, under Security Groups, select the security group associated with the nautilus-private-ec2 instance.
+Click Edit inbound rules and add the following rule:
+Type: All ICMP (IPv4).
+Source: The CIDR block of the public VPC (e.g., 172.31.0.0/16).
+This allows the private EC2 instance to respond to ping requests (ICMP) from the public EC2 instance.
+Modify the Security Group of nautilus-public-ec2:
+In the EC2 Dashboard, under Security Groups, select the security group associated with the nautilus-public-ec2 instance.
+Click Edit inbound rules and ensure that it allows SSH on port 22 from the aws-client host (or any source you'd like).
+
+Step 4: Add SSH Key to nautilus-public-ec2
+To ensure you can SSH into the public EC2 instance from your AWS client host, you need to add the public key to the ec2-user's authorized_keys on the nautilus-public-ec2 instance.
+Obtain the Public Key:
+From your aws-client host, ensure the id_rsa.pub public key is available (or use any existing key).
+SSH into the Public EC2 Instance:
+SSH into nautilus-public-ec2 using the appropriate private key:
+ssh -i /path/to/your-key.pem ec2-user@<public-ec2-ip>
+Add the Public Key to authorized_keys:
+Once connected to the public EC2 instance, add the public key to the authorized_keys:
+echo "your-public-key" >> /home/ec2-user/.ssh/authorized_keys
+Replace your-public-key with the actual content of /root/.ssh/id_rsa.pub from the aws-client.
+Update the Permissions:
+chmod 700 /home/ec2-user/.ssh
+chmod 600 /home/ec2-user/.ssh/authorized_keys
+
+Step 5: Test the Connection
+Test SSH from AWS Client to Public EC2:
+From your AWS Client host, SSH into nautilus-public-ec2:
+ssh -i /root/.ssh/id_rsa ec2-user@<public-ec2-ip>
+This verifies that you can access the public EC2 instance using the correct key.
+Test ICMP Connectivity (Ping):
+From nautilus-public-ec2, test pinging the private EC2 instance:
+ping 10.1.1.x  # Replace with the private IP of the private EC2 instance.
+This verifies that the private EC2 instance is reachable from the public EC2 instance.
