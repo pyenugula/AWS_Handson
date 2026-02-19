@@ -14,3 +14,102 @@ Configure this instance to act as a NAT instance. Make sure to use a custom secu
 After the configuration, verify that the test file nautilus-test.txt appears in the S3 bucket nautilus-nat-22458.
 This indicates successful internet access from the private EC2 instance via the NAT Instance.
 
+Step 1: Create the Public Subnet (nautilus-pub-subnet)
+Login to the AWS Console:
+Go to the AWS Management Console and log in with your credentials.
+Navigate to the VPC Dashboard:
+In the search bar, type VPC and select VPC from the list of services.
+Create the Public Subnet:
+In the VPC Dashboard, click Subnets on the left-hand side.
+Click Create subnet.
+Choose the existing VPC (nautilus-priv-vpc).
+Provide a Subnet name: nautilus-pub-subnet.
+Choose an appropriate Availability Zone (you can select the same AZ as the private subnet or a different one).
+For CIDR Block, provide a new block for the public subnet (e.g., 10.0.2.0/24 if 10.0.1.0/24 is used for the private subnet).
+Click Create.
+
+step2 : check for any igw attached to the private vpc if not create a igw and attache to private vpc.
+
+step3 : check the main route table abd edit routes to allow 0.0.0.0/0 --> igw and routetable associate with public subnet.
+
+step4 :  Launch the NAT Instance
+Navigate to EC2 Dashboard:
+In the EC2 Dashboard, click Launch Instance.
+Choose Amazon Linux 2 AMI:
+In the Choose an Amazon Machine Image (AMI) section, select the Amazon Linux 2 AMI.
+Choose Instance Type:
+Select t2.micro (eligible for the free tier).
+Configure Instance Details:
+In the Network section, select the VPC (nautilus-priv-vpc).
+In the Subnet section, select the newly created public subnet (nautilus-pub-subnet).
+Auto-assign Public IP: Select Enable (since this will be a NAT instance, it needs a public IP to allow outgoing traffic).
+Configure Security Group:
+Create a new security group or use an existing one.
+Add the following inbound rules:
+All traffic --> custom --> 10.1.0.0/16 [private cdir]
+Configure Storage and Launch:
+Configure the instance storage (default is fine for this task).
+Review the configuration and click Launch.
+Select a Key Pair:
+Use an existing key pair or create a new one for SSH access to the instance.
+
+step5 : connect to nat instance run below commands 
+
+To create a NAT AMI for Amazon Linux
+
+Launch an EC2 instance running AL2023 or Amazon Linux 2. Be sure to specify the security group that you created for the NAT instance.
+Connect to your instance and run the following commands on the instance to enable iptables.
+
+sudo yum install iptables-services -y
+sudo systemctl enable iptables
+sudo systemctl start iptables
+Do the following on the instance to enable IP forwarding such that it persists after reboot:
+Using a text editor, such as nano or vim, create the following configuration file: /etc/sysctl.d/custom-ip-forwarding.conf.
+Add the following line to the configuration file.
+
+net.ipv4.ip_forward=1
+Save the configuration file and exit the text editor.
+Run the following command to apply the configuration file.
+
+sudo sysctl -p /etc/sysctl.d/custom-ip-forwarding.conf
+Run the following command on the instance, and note the name of the primary network interface. You'll need this information for the next step.
+
+netstat -i
+In the following example output, docker0 is a network interface created by docker, eth0 is the primary network interface, and lo is the loopback interface.
+Iface      MTU    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+docker0   1500        0      0      0 0             0      0      0      0 BMU
+eth0      9001  7276052      0      0 0       5364991      0      0      0 BMRU
+lo       65536   538857      0      0 0        538857      0      0      0 LRU
+In the following example output, the primary network interface is enX0.
+Iface      MTU    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+enX0      9001     1076      0      0 0          1247      0      0      0 BMRU
+lo       65536       24      0      0 0            24      0      0      0 LRU
+In the following example output, the primary network interface is ens5.
+Iface      MTU    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+ens5      9001    14036      0      0 0          2116      0      0      0 BMRU
+lo       65536       12      0      0 0            12      0      0      0 LRU
+Run the following commands on the instance to configure NAT. If the primary network interface is not eth0, replace eth0 with the primary network interface that you noted in the previous step.
+
+sudo /sbin/iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo /sbin/iptables -F FORWARD
+sudo service iptables save
+Create a NAT AMI from the EC2 instance. For more information, see Create a Linux AMI from an instance in the Amazon EC2 User Guide.
+
+Disable source/destination checks for the NAT instance (see 5. Disable source/destination checks).
+Update the route table to send traffic to the NAT instance (see 6. Update the route table).
+
+Step : Update the Route Tables
+Update the Private Subnet Route Table:
+Go to the VPC Dashboard > Route Tables.
+Find the Route Table associated with the private subnet (nautilus-priv-subnet).
+Edit the routes and add the following:
+Destination: 0.0.0.0/0
+Target: Select the NAT Instance (or the instance ID of the NAT instance).
+Click Save Routes.
+Verify the Public Subnet Route Table:
+The public subnet's route table should already have a route for 0.0.0.0/0 pointing to the Internet Gateway. Verify this by checking the Route Table associated with the public subnet.
+
+Verify the Upload to S3
+
+
+
