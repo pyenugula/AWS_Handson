@@ -1,0 +1,71 @@
+Day33: Create Lambda Function: Create a Lambda function named nautilus-lambda.
+
+Runtime: Use the Runtime Python.
+
+Deploy: The function should print the body Welcome to KKE AWS Labs!.
+
+Status Code: Ensure the status code is 200.
+
+IAM Role: Create and use the IAM role named lambda_execution_role.
+
+Step 1: Create the IAM Role for Lambda
+Login to AWS Console.
+Navigate to IAM:
+In the search bar, type IAM and select it.
+Create a Role:
+Go to Roles > Create Role.
+Select Trusted Entity: AWS Service > Lambda > Next.
+Attach Policies:
+Attach AWSLambdaBasicExecutionRole policy (this allows writing logs to CloudWatch).
+Click Next.
+Role Name:
+Enter lambda_execution_role.
+Click Create Role.
+
+Step 2: Create the Lambda Function
+Navigate to AWS Lambda:
+Search for Lambda in AWS Console.
+Create Function:
+Click Create Function.
+Choose Author from scratch.
+Function Name: nautilus-lambda.
+Runtime: Python 3.x (choose the latest supported, e.g., Python 3.11).
+Permissions: Use existing role.
+Select the role: lambda_execution_role.
+Click Create Function.
+
+Step 3: Add the Function Code
+In the Function Code section, replace the default code with:
+def lambda_handler(event, context):
+    return {
+        'statusCode': 200,
+        'body': 'Welcome to KKE AWS Labs!'
+    }
+This function returns status code 200 and prints the required body.
+Click Deploy to save changes.
+
+Step 4: Test the Lambda Function
+Create a Test Event:
+Click Test in the Lambda Console.
+Select Create new test event.
+Event Name: TestEvent.
+Leave the default JSON and click Create.
+Run the Test:
+Click Test again.
+You should see the Execution Result:
+{
+  "statusCode": 200,
+  "body": "Welcome to KKE AWS Labs!"
+}
+This confirms the Lambda function works correctly.
+
+✅ Step 5: Summary
+Lambda Name: nautilus-lambda
+Runtime: Python
+IAM Role: lambda_execution_role with AWSLambdaBasicExecutionRole
+Code: Returns statusCode 200 with body "Welcome to KKE AWS Labs!"
+Tested: Returns correct output
+Visual Diagram of Setup
+
+
+
