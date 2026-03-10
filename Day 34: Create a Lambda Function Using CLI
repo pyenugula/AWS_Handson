@@ -1,0 +1,93 @@
+The Nautilus DevOps team continues to explore serverless architecture by setting up another Lambda function. 
+This time, the task must be completed using the AWS Console to familiarize the team with the web interface. 
+The function will return a custom greeting and demonstrate the capabilities of AWS Lambda effectively.
+
+Create Python Script: Create a Python script named lambda_function.py with a function that returns the body Welcome to KKE AWS Labs! and status code 200.
+
+Zip the Python Script: Zip the script into a file named function.zip.
+
+Create Lambda Function: Create a Lambda function named datacenter-lambda-cli using the zipped file and specify Python as the runtime.
+
+IAM Role: Use the IAM role named lambda_execution_role.
+
+
+Solution : 
+
+1. Create the Python Script (lambda_function.py)
+
+Open a text editor or IDE (like VS Code, PyCharm, etc.).
+
+Paste the following Python code into the editor:
+
+import json
+
+def lambda_handler(event, context):
+    response = {
+        'statusCode': 200,
+        'body': json.dumps({'message': 'Welcome to KKE AWS Labs!'})
+    }
+    return response
+Save the file as lambda_function.py. Make sure the file extension is .py.
+
+2. Zip the Python Script (function.zip)
+
+Open a Terminal/Command Prompt: Navigate to the directory where you saved lambda_function.py.
+
+Zip the file: Use the following command to create the ZIP archive:
+
+zip function.zip lambda_function.py
+
+This will create a file named function.zip in the same directory.
+
+3. Create the Lambda Function Using the AWS CLI
+
+Login to AWS CLI: (If you haven't already)
+
+aws configure
+Follow the prompts to configure your AWS credentials (Access Key ID, Secret Access Key, Region, and Output Format).
+
+Create the Lambda Function: Use the following command. Replace the placeholder values with your actual values.
+
+~ on ☁️  (us-east-1) ➜  aws lambda create-function \
+    --function-name datacenter-lambda-cli \
+    --runtime python3.9 \
+    --role arn:aws:iam::363553714012:role/lambda_execution_role \
+    --handler lambda_function.lambda_handler \
+    --zip-file fileb://function.zip
+
+--function-name datacenter-lambda-cli: This sets the name of your Lambda function.
+--runtime python3.9: Specifies the Python runtime. You can change this if you have a different Python version.
+--role lambda_execution_role: Crucially, this specifies the IAM role. You must have this role already created in AWS.
+--handler lambda_function.lambda_handler: This tells Lambda where to find the function within the ZIP file.
+--zip-file fileb://function.zip: This specifies the path to the ZIP file.
+
+4. Verify the Lambda Function Creation
+
+Get Function Details: After the Lambda function is created, you can check its configuration:
+
+aws lambda get-function --function-name datacenter-lambda-cli
+
+
+on ☁️  (us-east-1) ➜  aws iam list-roles| grep "lambda_execution_role"
+            "RoleName": "lambda_execution_role",
+            "Arn": "arn:aws:iam::363553714012:role/lambda_execution_role",
+
+if the role not created  follow the below steps 
+
+# 1. Login to AWS CLI (if you haven't already)
+# 2. Create the IAM Role
+aws iam create-role \
+    --role-name lambda_execution_role \
+    --description "Role for Lambda function execution"
+
+# 3. Attach the Lambda Execution Policy
+aws iam attach-role-policy \
+    --role-name lambda_execution_role \
+    --policy-arn arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole
+
+# 4. Verify Role Creation
+aws iam get-role --role-name lambda_execution_role
+
+
+
+
