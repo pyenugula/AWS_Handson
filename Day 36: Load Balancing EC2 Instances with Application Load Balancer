@@ -1,0 +1,114 @@
+Day 36: Load Balancing EC2 Instances with Application Load Balancer
+
+Create a security group: Create a security group named nautilus-sg to open port 80 for the default security group (which will be attached to the ALB). Attach nautilus-sg security group to the EC2 instance.
+
+Create an EC2 instance: Create an EC2 instance named nautilus-ec2. Use any available Ubuntu AMI to create this instance. Configure the instance to run a user data script during its launch.
+
+This script should:
+
+Install the Nginx package.
+Start the Nginx service.
+Set up an Application Load Balancer: Set up an Application Load Balancer named nautilus-alb. Attach default security group to the same.
+
+Create a target group: Create a target group named nautilus-tg.
+
+Route traffic: The ALB should route traffic on port 80 to port 80 of the nautilus-ec2 instance.
+
+Security group adjustments: Make appropriate changes in the default security group attached to the ALB if necessary. Eventually, the Nginx server running under nautilus-ec2 instance must be accessible using the ALB DNS.
+
+
+# AWS 100Days – KodeKloud Task: Nginx on EC2 with ALB
+
+This project demonstrates how to set up an **AWS EC2 instance** running Nginx, exposed via an **Application Load Balancer (ALB)** with proper **security groups** and a **target group**.
+
+---
+
+## Architecture Diagram
+
+![AWS ALB Architecture](./a_simple_diagram_infographic_illustrates_an_aws_ar.png)
+
+---
+
+## Prerequisites
+
+- AWS account with proper permissions.
+- Default VPC with at least 2 public subnets.
+- Key pair for SSH access (optional).
+- Basic understanding of EC2, Security Groups, and ALB.
+
+---
+
+## Step 1: Create Security Group
+
+1. Go to **EC2 → Security Groups → Create Security Group**.
+2. Name: `nautilus-sg`
+3. Description: `SG to allow HTTP traffic from ALB`
+4. Add inbound rule:
+   - Type: `HTTP`
+   - Port: `80`
+   - Source: `Default security group` (used by ALB)
+5. Leave outbound rules as default.
+
+---
+
+## Step 2: Launch EC2 Instance
+
+1. Go to **EC2 → Instances → Launch Instance**.
+2. Name: `nautilus-ec2`
+3. AMI: **Ubuntu Server 22.04 LTS**
+4. Instance type: `t2.micro`
+5. Security group: `nautilus-sg`
+6. Add **User Data** script:
+
+```bash
+#!/bin/bash
+apt update -y
+apt install nginx -y
+systemctl start nginx
+systemctl enable nginx
+
+7. Launch the instance 
+
+## Step 3: Create Application Load Balancer
+Go to EC2 → Load Balancers → Create Load Balancer → Application Load Balancer.
+Name: nautilus-alb
+Scheme: Internet-facing
+Listener: HTTP port 80
+Select at least 2 public subnets
+Security group: Default security group (allow HTTP 80 inbound)
+Click Next: Configure Routing
+
+### Step 4: Create Target Group
+Name: nautilus-tg
+Target type: Instances
+Protocol: HTTP, Port: 80
+Register nautilus-ec2 instance as target
+Health check path: /
+
+##Step 5: Attach Target Group to ALB
+Go to ALB → Listeners → View/Edit Rules
+Default action: Forward to nautilus-tg
+
+Step 6: Security Group Adjustments
+ALB SG: Allow HTTP (80) from 0.0.0.0/0
+EC2 SG (nautilus-sg): Allow HTTP (80) from ALB security group
+
+Step 7: Verification
+Copy ALB DNS from AWS console.
+Open in browser → Should display Nginx welcome page
+
+
+# Error 
+
+Meaning
+“Unused: Target is in an Availability Zone that is not enabled for the load balancer”
+Target → your EC2 instance.
+Availability Zone (AZ) → AWS divides regions into multiple AZs (e.g., us-east-1a, us-east-1b).
+Load Balancer → must be configured to use the subnets in certain AZs.
+This message means:
+The EC2 instance is in an AZ that the ALB is not currently using.
+ALB cannot send traffic to targets in that AZ because it doesn’t have a subnet mapped there.
+The instance is healthy, but ALB considers it “unused” for routing.
+
+
+
