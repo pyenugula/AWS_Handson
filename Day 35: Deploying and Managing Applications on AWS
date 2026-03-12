@@ -1,1 +1,92 @@
 Day 35: Deploying and Managing Applications on AWS
+
+Step 1: Create a Private RDS MySQL Instance
+Using AWS Console:
+Login to AWS Console → go to RDS service.
+Create Database:
+Click Create Database.
+Choose Standard Create or Sandbox Template (if available in your account).
+Engine Options:
+Engine type: MySQL
+Version: 8.4.5
+Templates:
+Choose Free tier or Sandbox for testing.
+DB Instance Settings:
+DB instance identifier: datacenter-rds
+Master username: datacenter_admin
+Password: choose a secure password and confirm.
+DB Instance Class:
+Select: db.t3.micro
+Storage:
+Storage type: gp2
+Allocated storage: 5 GiB
+Connectivity:
+VPC: choose your private VPC (so the DB is private)
+Subnet group: leave default or ensure it is private
+Public access: No
+VPC security groups: we will adjust after creation to allow EC2 access
+Database Options:
+Database name: datacenter_db
+Other Settings:
+Keep defaults.
+Create Database:
+Click Create database.
+Wait for the status to become Available.
+
+Step 2: Adjust Security Groups
+For the RDS Security Group:
+Navigate to EC2 > Security Groups.
+Select the RDS security group.
+Add inbound rules to allow:
+MySQL/Aurora (port 3306) from the private IP of datacenter-ec2 or its security group.
+Optional: Allow port 80 if your EC2 instance also serves web traffic.
+
+Step 3: Configure SSH Access to EC2
+Connect to EC2 Console:
+Go to EC2 Dashboard → Instances → select datacenter-ec2 → Connect.
+Ensure SSH Key Exists:
+On aws-client host:
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa
+This will create /root/.ssh/id_rsa (private) and /root/.ssh/id_rsa.pub (public).
+Add Public Key to EC2 Instance:
+Connect to EC2 via browser or existing key.
+Append the public key to /root/.ssh/authorized_keys:
+echo "<contents-of-id_rsa.pub>" >> /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+
+Step 4: Deploy PHP File to EC2
+Copy index.php from AWS Client to EC2:
+scp -i  /root/index.php root@<public-ip-of-datacenter-ec2>:/var/www/html/
+
+Try to connect RDS dB from the cli using below endpoint : if you get error creatae a directory and download the certicate 
+
+mysql -h xfusion-rds.c3kmwkmmg2kq.us-east-1.rds.amazonaws.com -P 3306 -u xfusion_admin -p'admin1234' --ssl-verify-server-cert  --ssl-ca=/root/certs/global-bundle.pem xfusion_db
+ERROR 2026 (HY000): TLS/SSL error: No such file or directory (2)
+
+root@ip-172-31-29-230:~# sudo curl -sS https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -o /root/certs/global-bundle.pem
+curl: (23) Failure writing output to destination
+
+root@ip-172-31-29-230:/var/www/html# cat index.php 
+<?php
+$dbname = 'xfusion_db';
+$dbuser = 'xfusion_admin';
+$dbpass = 'admin1234';
+$dbhost = 'xfusion-rds.c3kmwkmmg2kq.us-east-1.rds.amazonaws.com';
+
+$link = mysqli_connect($dbhost, $dbuser, $dbpass) or die("Unable to Connect to '$dbhost'");
+mysqli_select_db($link, $dbname) or die("Could not open the db '$dbname'");
+
+$test_query = "SHOW TABLES FROM $dbname";
+$result = mysqli_query($link, $test_query);
+
+$tblCnt = 0;
+while($tbl = mysqli_fetch_array($result)) {
+  $tblCnt++;
+}
+
+if (!$tblCnt) {
+  echo "Connected successfully<br />\n";
+} else {
+  echo "Connected successfully<br />\n";
+}
+?>
