@@ -1,6 +1,20 @@
-For this task, create a key pair with the following requirements:
+# Day 1: [ Create Key Pair]
+**Date:** 2026-02-06  
+**Task Owner:** Pavan 
+
+---
+## Objective
+create a key pair with the following requirements:
 Name of the key pair should be nautilus-kp.
 Key pair type must be rsa
+
+---
+
+## Steps / Instructions
+
+```bash
+### To create a key pair named nautilus-kp with RSA encryption, you can use the following AWS CLI command
+aws ec2 create-key-pair --key-name nautilus-kp --query 'KeyMaterial' --output text > nautilus-kp.pem
 
 To create a key pair in AWS using the AWS Management Console, follow these steps:
 Steps to create the key pair:
