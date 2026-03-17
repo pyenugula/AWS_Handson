@@ -1,0 +1,32 @@
+1. Verify the VPC Configuration
+Internet Gateway (IGW):
+Ensure that the VPC (devops-vpc) has an attached Internet Gateway.
+Without an IGW, instances in the VPC cannot communicate with the internet.
+Public Subnet:
+Ensure the EC2 instance is in a public subnet.
+Public subnets must have a route to the IGW.
+Route Table:
+Check the route table for the public subnet:
+There must be a route: 0.0.0.0/0 → IGW.
+Network ACLs:
+Confirm Network ACLs for the subnet allow inbound HTTP (port 80) and ephemeral outbound ports.
+
+2. Verify EC2 Instance Configuration
+Public IP Assignment:
+Ensure the EC2 instance (devops-ec2) has a public IP address.
+If launching in a public subnet, auto-assign public IP must be enabled.
+Security Group (devops-sg):
+Inbound rule: allow HTTP (port 80) from 0.0.0.0/0.
+Outbound rule: allow all traffic or at least return traffic (0.0.0.0/0).
+Nginx Status:
+Verify Nginx is running:
+sudo systemctl status nginx
+Ensure Nginx is listening on port 80:
+sudo netstat -tulnp | grep 80
+
+Common Pitfalls
+EC2 is in a private subnet → cannot access the internet without a NAT instance/gateway.
+No route to IGW in the public subnet route table.
+Security group inbound rules only allow SSH (port 22) but not HTTP (port 80).
+Nginx is not running or misconfigured.
+Public IP not assigned to the instance.
