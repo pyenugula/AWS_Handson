@@ -1,0 +1,79 @@
+Task Requirements:
+
+Create an S3 bucket named nautilus-web-798.
+Configure the S3 bucket for static website hosting with index.html as the index document.
+Allow public access to the bucket so that the website is publicly accessible.
+Upload the index.html file from the /root/ directory of the AWS client host to the S3 bucket.
+Verify that the website is accessible directly through the S3 website URL.
+
+
+
+Step 1: Create the S3 Bucket
+AWS Console Method:
+Login to the AWS Management Console.
+Navigate to S3 → Buckets → Create bucket.
+Configure:
+Bucket name: nautilus-web-798
+Region: Choose your preferred region
+Leave other options as default for now
+Click Create bucket.
+AWS CLI Method:
+aws s3api create-bucket \
+    --bucket nautilus-web-798 \
+    --region us-east-1 \
+    --create-bucket-configuration LocationConstraint=us-east-1
+Adjust the region if you’re using a different one.
+Step 2: Enable Static Website Hosting
+AWS Console Method:
+Go to the bucket Properties → Static website hosting.
+Select Enable.
+Index document: index.html
+Click Save.
+AWS CLI Method:
+aws s3 website s3://nautilus-web-798/ --index-document index.html
+Step 3: Configure Public Access
+Important: To make the website publicly accessible, the bucket must allow public access.
+Go to Permissions → Bucket Policy in the S3 console.
+Add the following policy to allow public read:
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::nautilus-web-798/*"
+        }
+    ]
+}
+Click Save.
+AWS CLI Method:
+aws s3api put-bucket-policy \
+    --bucket nautilus-web-798 \
+    --policy '{
+        "Version":"2012-10-17",
+        "Statement":[
+            {
+                "Sid":"PublicReadGetObject",
+                "Effect":"Allow",
+                "Principal":"*",
+                "Action":["s3:GetObject"],
+                "Resource":["arn:aws:s3:::nautilus-web-798/*"]
+            }
+        ]
+    }'
+Step 4: Upload the index.html File
+AWS Console Method:
+Open the bucket nautilus-web-798.
+Click Upload → Add files.
+Select /root/index.html from the AWS client host.
+Click Upload.
+AWS CLI Method:
+aws s3 cp /root/index.html s3://nautilus-web-798/index.html
+Step 5: Verify the Website
+Go to Properties → Static website hosting in the bucket.
+Copy the Endpoint URL (S3 website URL). Example:
+http://nautilus-web-798.s3-website-us-east-1.amazonaws.com
+Open the URL in a browser.
+You should see the content of your index.html file, confirming the website is publicly accessible.
