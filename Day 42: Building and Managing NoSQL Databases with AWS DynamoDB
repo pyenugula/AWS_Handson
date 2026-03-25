@@ -1,0 +1,26 @@
+
+Step 1: Create the DynamoDB Table
+AWS Console Method
+Login to the AWS Management Console.
+Navigate to DynamoDB → Tables → Create Table.
+Configure the table:
+Table name: datacenter-tasks
+Primary key: taskId (String)
+Leave other settings as default for now (provisioned capacity, encryption, etc.)
+Click Create Table.
+Wait until the table status shows Active.
+AWS CLI Method
+aws dynamodb create-table \
+    --table-name datacenter-tasks \
+    --attribute-definitions AttributeName=taskId,AttributeType=S \
+    --key-schema AttributeName=taskId,KeyType=HASH \
+    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+Wait until the table status is ACTIVE.
+Step 2: Insert Tasks into the Table
+AWS CLI Method
+Task 1:
+
+aws dynamodb put-item \
+    --table-name datacenter-tasks \
+    --item '{"taskId": {"S": "1"}, "description": {"S": "Learn DynamoDB"}, "status": {"S": "completed"}}'
+
