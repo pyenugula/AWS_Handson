@@ -1,0 +1,23 @@
+The task is to create a private EKS cluster using the default VPC, ensure high availability, and follow internal security standards.
+Step 1: Create IAM Role for EKS Cluster
+Navigate to IAM → Roles → Create role.
+Trusted entity: AWS service → EKS
+Use case: EKS Cluster
+Attach Policies:
+AmazonEKSClusterPolicy
+AmazonEKSServicePolicy
+Role Name: eksClusterRole
+Click Create role.
+This role allows EKS to manage resources on your behalf.
+Step 2: Create the EKS Cluster (Console Method)
+Navigate to EKS → Clusters → Create cluster → Custom configuration.
+Cluster Name: nautilus-eks
+Kubernetes Version: Select the latest stable version.
+Cluster Endpoint Access: Select Private only (disable public endpoint).
+VPC Configuration:
+VPC: Default VPC
+Subnets: Select private subnets in Availability Zones a, b, c
+Security Groups: Default or create a custom security group allowing control plane access from your internal network.
+IAM Role: eksClusterRole
+EKS Auto Mode: Ensure disabled (manual node group management)
+Click Create Cluster.
